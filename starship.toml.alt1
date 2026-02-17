@@ -1,0 +1,81 @@
+# Starship configuration
+
+add_newline = false
+command_timeout = 2000
+
+# No directory here, because your zsh precmd already prints full path
+format = "$git_branch$git_status$nodejs$docker_context$kubernetes${custom.awsctx}$battery$time$character"
+
+[git_branch]
+format = "[$branch]($style) "
+symbol = ""
+
+[git_status]
+format = "[$all_status$ahead_behind]($style) "
+conflicted = "x"
+ahead = ">"
+behind = "<"
+diverged = "<>"
+untracked = "?"
+stashed = "s"
+modified = "m"
+staged = "+"
+renamed = "r"
+deleted = "d"
+
+[nodejs]
+# Only show for real Node projects, keep it quiet
+format = "[$version]($style) "
+symbol = ""
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+detect_folders = []
+detect_extensions = []
+
+[docker_context]
+# Only show when project files exist
+only_with_files = true
+detect_files = ["Dockerfile", "docker-compose.yml", "docker-compose.yaml"]
+format = "[$context]($style) "
+symbol = ""
+
+[kubernetes]
+disabled = false
+# Only show when these markers exist, or when KUBECONFIG is set
+detect_files = ["kustomization.yaml", "kustomization.yml", "Chart.yaml", "helmfile.yaml", "skaffold.yaml"]
+detect_folders = []
+detect_extensions = []
+detect_env_vars = ["KUBECONFIG"]
+format = "[$context( \\($namespace\\))]($style) "
+symbol = ""
+
+# Disable built in AWS module so ~/.aws does not cause noise
+[aws]
+disabled = true
+
+# Custom AWS context, shows only when you are actually working with AWS
+[custom.awsctx]
+description = "AWS context shown only for AWS projects or when AWS env vars are set"
+# Your explicit marker plus common AWS project markers
+detect_files = [".awsctx", "cdk.json", "serverless.yml", "samconfig.toml", "template.yaml", "template.yml"]
+# Also show if AWS env vars are set even without a marker file
+when = ''' test -n "$AWS_PROFILE$AWS_REGION$AWS_DEFAULT_REGION$AWS_SSO_PROFILE" '''
+command = ''' p="$AWS_PROFILE"; r="${AWS_REGION:-$AWS_DEFAULT_REGION}"; s="$AWS_SSO_PROFILE"; out=""; if [ -n "$p" ]; then out="$p"; fi; if [ -n "$s" ]; then out="$s"; fi; if [ -n "$r" ]; then if [ -n "$out" ]; then out="$out ($r)"; else out="($r)"; fi; fi; if [ -n "$out" ]; then echo "$out"; fi '''
+format = "[$output]($style) "
+style = "bold yellow"
+
+[battery]
+# Default behavior is only below 10 percent, add more thresholds if you want it earlier
+disabled = false
+
+[[battery.display]]
+threshold = 10
+style = "bold red"
+
+[time]
+disabled = true
+format = "[$time]($style) "
+time_format = "%H:%M"
+
+[character]
+success_symbol = "\\$ "
+error_symbol = "\\$ "
